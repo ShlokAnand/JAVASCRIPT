@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>User Registration</title>
+</head>
+<body>
+  <h2>User Registration Form</h2>
+
+  <form id="registrationForm">
+    <label for="name">Name:</label>
+    <input type="text" id="name" required><br><br>
+
+    <label for="age">Age:</label>
+    <input type="number" id="age" required><br><br>
+
+    <label for="email">Email:</label>
+    <input type="email" id="email" required><br><br>
+
+    <button type="submit">Register</button>
+  </form>
+
+  <h3 id="message"></h3>
+
+  <script>
+    const form = document.getElementById('registrationForm');
+    const message = document.getElementById('message');
+
+    form.addEventListener('submit', event => {
+      event.preventDefault();
+
+      const user = {
+        name: document.getElementById('name').value.trim(),
+        age: parseInt(document.getElementById('age').value),
+        email: document.getElementById('email').value.trim()
+      };
+
+      const { name, age, email } = user;
+
+      const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+      if (!name) {
+        message.textContent = "Name cannot be empty.";
+      } else if (isNaN(age) || age < 13 || age > 120) {
+        message.textContent = "Age must be between 13 and 120.";
+      } else if (!emailPattern.test(email)) {
+        message.textContent = "Invalid email format.";
+      } else {
+        message.textContent = `Welcome, ${name} (Age: ${age}). Your email ${email} has been registered successfully!`;
+      }
+    });
+  </script>
+</body>
+</html>
