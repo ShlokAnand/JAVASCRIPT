@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<head>
+
+  <title>Joke & Quote Generator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 30px;
+    }
+    #joke-area p {
+      background: #f0f0f0;
+      padding: 10px;
+      border-radius: 8px;
+      margin: 15px auto;
+      width: 50%;
+      font-size: 18px;
+    }
+    button {
+      padding: 10px 20px;
+      margin: 10px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    #get-joke {
+      background-color: #007bff;
+      color: white;
+    }
+    #get-quote {
+      background-color: #ff9800;
+      color: white;
+    }
+    .like-btn {
+      background-color: #28a745;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <h1>Joke & Quote Generator</h1>
+  <button id="get-joke">Get Joke</button>
+  <button id="get-quote">Get Quote</button>
+  <h3>Total Likes: <span id="total-likes">0</span></h3>
+  
+  <div id="joke-area"></div>
+  
+  <script>
+    const jokes = [
+      "Tie + ID compulsory every day. It’s less a college, more a corporate prison with semester exams instead of paychecks.",
+      "College WiFi is like my crush.Always available, never connects.",
+      "Why don’t some couples go to the gym? Because some relationships don’t work out.",
+      "I told my wife she should embrace her mistakes… She gave me a hug.",
+      "Exams are like breakups — they always come suddenly, and you never feel prepared."
+      
+      
+    ];
+
+    const quotes = [
+      "Follow your dreams… just don’t forget to set an alarm, or you’ll oversleep them.",
+      "Hard work never killed anyone… but why take the risk?",
+      "Don’t worry if you fail. Even failure needs talent — and clearly, you have plenty.",
+      "Dream big… but also remember, JavaScript assignment is due.",
+      
+    ];
+
+    const jokeBtn = document.querySelector("#get-joke");
+    const quoteBtn = document.querySelector("#get-quote");
+    const jokeArea = document.querySelector("#joke-area");
+    const totalLikesSpan = document.querySelector("#total-likes");
+    let totalLikes = 0;
+
+    function displayMessage(array) {
+      jokeArea.innerHTML = "";
+      const randomIndex = Math.floor(Math.random() * array.length);
+      const messageText = array[randomIndex];
+
+     
+      const p = document.createElement("p");
+      p.textContent = messageText;
+
+      // Create Like button
+      const likeBtn = document.createElement("button");
+      likeBtn.textContent = "👍 Like";
+      likeBtn.classList.add("like-btn");
+
+      // Add event
+      likeBtn.addEventListener("click", () => {
+        totalLikes++;
+        totalLikesSpan.textContent = totalLikes;
+        likeBtn.disabled = true;
+      });
+
+      // Append
+      jokeArea.appendChild(p);
+      jokeArea.appendChild(likeBtn);
+    }
+
+    jokeBtn.addEventListener("click", () => displayMessage(jokes));
+    quoteBtn.addEventListener("click", () => displayMessage(quotes));
+  </script>
+</body>
+</html>
