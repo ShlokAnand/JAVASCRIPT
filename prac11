@@ -1,0 +1,179 @@
+helper.js:-
+// helper.js — contains utility functions
+
+// Format time (MM:SS)
+export function formatTime(minutes, seconds) {
+  return `${minutes}:${seconds < 10 ? '0' + seconds : seconds}`;
+}
+
+// Log events for debugging
+export function logEvent(message) {
+  console.log(`[LOG] ${new Date().toLocaleTimeString()} - ${message}`);
+}
+
+index.html:-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Timers, Dynamic UI & Modular Design</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      transition: all 0.3s ease;
+    }
+
+    .session {
+      padding: 10px;
+      margin: 5px 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .active {
+      background: #c8f7c5;
+    }
+
+    #countdown {
+      font-weight: bold;
+      margin-top: 10px;
+    }
+
+    /* Responsive font size */
+    @media (max-width: 500px) {
+      body {
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h2>Class Scheduler (with Timers & Modules)</h2>
+
+  <div id="sessions">
+    <div class="session" data-time="09:00">HTML Basics - 9:00 AM</div>
+    <div class="session" data-time="10:00">CSS Design - 10:00 AM</div>
+    <div class="session" data-time="11:00">JavaScript Logic - 11:00 AM</div>
+  </div>
+
+  <button id="addSessionBtn">Add Session</button>
+
+  <p id="countdown"></p>
+
+  <script type="module" src="main.js"></script>
+</body>
+</html>
+
+main.js:-
+// main.js — main entry point
+import { startCountdown, highlightActiveSession } from './timer.js';
+import { handleViewportChange, addDynamicSessions, setupAddSessionButton } from './ui.js';
+
+const countdownDisplay = document.getElementById('countdown');
+
+// Start a 5-minute countdown
+startCountdown(60, countdownDisplay);
+
+// Highlight the active session every minute
+highlightActiveSession();
+setInterval(highlightActiveSession, 60000);
+
+// Handle viewport changes
+window.addEventListener('resize', handleViewportChange);
+handleViewportChange();
+
+// Enable event delegation and add-session button
+addDynamicSessions();
+setupAddSessionButton();
+
+timer.js:-
+// timer.js — countdown and session highlight logic
+import { formatTime } from './helper.js';
+
+export function startCountdown(duration, display) {
+  let time = duration; // seconds
+
+  const timer = setInterval(() => {
+    const minutes = Math.floor(time / 60);
+    const seconds = time % 60;
+
+    display.textContent = `Next session starts in ${formatTime(minutes, seconds)}`;
+
+    // Change text color when less than 1 minute
+    if (time <= 60) {
+      display.style.color = 'red';
+    } else {
+      display.style.color = 'black';
+    }
+
+    time--;
+
+    if (time < 0) {
+      clearInterval(timer);
+      display.textContent = "Session Started!";
+      display.style.color = 'green';
+    }
+  }, 1000);
+}
+
+// Function to highlight the currently active session
+export function highlightActiveSession() {
+  const sessions = document.querySelectorAll('.session');
+  const now = new Date();
+  const currentHour = now.getHours();
+
+  sessions.forEach(session => {
+    const hour = parseInt(session.dataset.time.split(':')[0]);
+    if (hour === currentHour) {
+      session.classList.add('active');
+    } else {
+      session.classList.remove('active');
+    }
+  });
+}
+
+ui.js:-
+// ui.js — handles dynamic UI, responsiveness, and event delegation
+import { logEvent } from './helper.js';
+
+// Change background color based on screen width
+export function handleViewportChange() {
+  if (window.innerWidth < 600) {
+    document.body.style.background = '#f0f8ff';
+  } else {
+    document.body.style.background = 'white';
+  }
+}
+
+// Event delegation for sessions
+export function addDynamicSessions() {
+  const sessionsDiv = document.getElementById('sessions');
+  sessionsDiv.addEventListener('click', (e) => {
+    if (e.target.classList.contains('session')) {
+      alert("You selected: " + e.target.textContent);
+      logEvent(`Session clicked: ${e.target.textContent}`);
+    }
+  });
+}
+
+// Add new session dynamically
+export function setupAddSessionButton() {
+  const btn = document.getElementById('addSessionBtn');
+  const sessionsDiv = document.getElementById('sessions');
+
+  btn.addEventListener('click', () => {
+    const newTime = prompt("Enter new session time (e.g., 12:00):");
+    const newTopic = prompt("Enter session topic:");
+
+    if (newTime && newTopic) {
+      const div = document.createElement('div');
+      div.classList.add('session');
+      div.dataset.time = newTime;
+      div.textContent = `${newTopic} - ${newTime}`;
+      sessionsDiv.appendChild(div);
+      logEvent(`Added new session: ${newTopic} at ${newTime}`);
+    }
+  });
+}
