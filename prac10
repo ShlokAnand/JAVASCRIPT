@@ -1,0 +1,123 @@
+employees.json:-
+[
+  {"id":1,"name":"Shlok Anand","department":"Finance","salary":85000},
+  {"id":2,"name":"Priya Sharma","department":"IT","salary":27000},
+  {"id":3,"name":"Ali Khan","department":"HR","salary":15000},
+  {"id":4,"name":"Sara Lee","department":"Marketing","salary":52000},
+  {"id":5,"name":"David Kim","department":"IT","salary":20000}
+]
+
+index.html:-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Employee Directory Manager</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        table { border-collapse: collapse; width: 80%; margin: 20px 0; }
+        th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .highlight { background-color: #c8facc; }
+        select { margin: 20px 0; padding: 5px; }
+    </style>
+</head>
+<body>
+
+<h1>Employee Directory Manager</h1>
+
+<h2>Filter by Department</h2>
+<select id="departmentFilter">
+    <option value="All">All Departments</option>
+</select>
+
+<h2>Employees Loaded via Fetch API</h2>
+<div id="fetchTableContainer"></div>
+
+<h2>Employees Loaded via jQuery $.getJSON()</h2>
+<div id="jqueryTableContainer"></div>
+
+<script src="script.js"></script>
+</body>
+</html>
+
+script.js:-
+const fetchContainer = document.getElementById('fetchTableContainer');
+const jqueryContainer = document.getElementById('jqueryTableContainer');
+const departmentFilter = document.getElementById('departmentFilter');
+
+// Function to create table dynamically
+function createTable(data, container) {
+    container.innerHTML = ''; // Clear previous content
+
+    const table = document.createElement('table');
+    const thead = document.createElement('thead');
+    const headerRow = document.createElement('tr');
+    ['ID', 'Name', 'Department', 'Salary'].forEach(text => {
+        const th = document.createElement('th');
+        th.textContent = text;
+        headerRow.appendChild(th);
+    });
+    thead.appendChild(headerRow);
+    table.appendChild(thead);
+
+    const tbody = document.createElement('tbody');
+    data.forEach(emp => {
+        const row = document.createElement('tr');
+        if(emp.salary > 50000) row.classList.add('highlight'); // Highlight high salary
+        Object.values(emp).forEach(val => {
+            const td = document.createElement('td');
+            td.textContent = val;
+            row.appendChild(td);
+        });
+        tbody.appendChild(row);
+    });
+    table.appendChild(tbody);
+
+    container.appendChild(table);
+    console.table(data);
+}
+
+// Function to populate department dropdown dynamically
+function populateDepartments(data) {
+    const uniqueDepartments = [...new Set(data.map(emp => emp.department))];
+    uniqueDepartments.forEach(dep => {
+        const option = document.createElement('option');
+        option.value = dep;
+        option.textContent = dep;
+        departmentFilter.appendChild(option);
+    });
+}
+
+// Filter function
+function filterByDepartment(data, department) {
+    if(department === 'All') return data;
+    return data.filter(emp => emp.department === department);
+}
+
+// Fetch API
+fetch('employees.json')
+    .then(response => response.json())
+    .then(data => {
+        populateDepartments(data);
+        createTable(data, fetchContainer);
+
+        // Add filter listener
+        departmentFilter.addEventListener('change', () => {
+            const filtered = filterByDepartment(data, departmentFilter.value);
+            createTable(filtered, fetchContainer);
+        });
+    })
+    .catch(err => console.error('Fetch error:', err));
+
+// jQuery $.getJSON
+$.getJSON('employees.json', function(data) {
+    createTable(data, jqueryContainer);
+
+    // Add filter listener
+    $('#departmentFilter').on('change', function() {
+        const filtered = filterByDepartment(data, this.value);
+        createTable(filtered, jqueryContainer);
+    });
+});
