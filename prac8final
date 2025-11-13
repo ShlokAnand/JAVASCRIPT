@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gym Admission Form</title>
+    <style>
+        /* --- General & Layout --- */
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background-color: #f0f2f5; display: flex; justify-content: center; align-items: center; padding: 2rem; min-height: 100vh; margin: 0; }
+        .form-container { background: #fff; padding: 2.5rem; border-radius: 12px; box-shadow: 0 8px 16px rgba(0,0,0,0.1); width: 100%; max-width: 600px; }
+        h1 { text-align: center; color: #333; margin-bottom: 2rem; }
+        
+        /* --- Form Elements --- */
+        .form-group { margin-bottom: 1.5rem; }
+        label { display: block; margin-bottom: 0.5rem; font-weight: 600; color: #555; }
+        input[type="text"], input[type="email"], input[type="number"], input[type="password"], input[type="date"], input[type="file"], select { width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; transition: all 0.3s ease; }
+        input:focus, select:focus { outline: none; border-color: #007bff; box-shadow: 0 0 5px rgba(0,123,255,0.5); }
+        
+        /* --- Validation Visuals --- */
+        input.valid, select.valid { border-color: #28a745; background-color: #e9f7ef; }
+        input.invalid, select.invalid { border-color: #dc3545; background-color: #fdebee; }
+        .validation-message { display: block; font-size: 0.875rem; margin-top: 0.25rem; min-height: 1.2em; }
+        .validation-message.error { color: #dc3545; }
+        .validation-message.success { color: #28a745; }
+
+        /* --- Password Strength Meter --- */
+        #password-strength-container { width: 100%; background-color: #eee; border-radius: 4px; margin-top: 8px; overflow: hidden; }
+        #password-strength-bar { height: 8px; width: 0; border-radius: 4px; transition: width 0.3s, background-color 0.3s; }
+        #password-strength-bar.weak { background-color: #dc3545; width: 33%; }
+        #password-strength-bar.medium { background-color: #ffc107; width: 66%; }
+        #password-strength-bar.strong { background-color: #28a745; width: 100%; }
+        #password-strength-text { font-size: 0.8rem; font-weight: bold; margin-top: 4px; float: right; }
+        #password-strength-text.weak { color: #dc3545; }
+        #password-strength-text.medium { color: #ffc107; }
+        #password-strength-text.strong { color: #28a745; }
+
+        /* --- MODIFIED: Add-Ons and Price --- */
+        #addons-container { display: flex; flex-wrap: wrap; gap: 1.5rem; align-items: center; margin-top: 0.5rem; }
+        #addons-container div { display: flex; align-items: center; gap: 0.25rem; }
+        #addons-container label { margin-bottom: 0; font-weight: normal; } /* Override default label styles */
+        #totalPriceDisplay { margin-top: 1rem; font-weight: bold; color: #007bff; font-size: 1.2em; text-align: right; }
+
+        /* --- Field-Specific & Buttons --- */
+        #gender-group label { display: inline-block; font-weight: normal; margin-right: 1rem; }
+        .form-group-checkbox { display: flex; align-items: center; }
+        .form-group-checkbox input { margin-right: 0.5rem; }
+        .form-group-checkbox label { margin-bottom: 0; }
+        .form-buttons { display: flex; justify-content: flex-end; gap: 1rem; margin-top: 2rem; }
+        button { padding: 0.75rem 1.5rem; border: none; border-radius: 6px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: background-color 0.3s ease, opacity 0.3s ease; }
+        button[type="submit"] { background-color: #007bff; color: white; }
+        button[type="reset"] { background-color: #6c757d; color: white; }
+        button[type="submit"]:disabled { background-color: #a0cffa; cursor: not-allowed; opacity: 0.7; }
+        .form-success { text-align: center; padding: 1rem; margin-bottom: 1.5rem; background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; border-radius: 6px; }
+        .preview-box { background: #e9ecef; border: 1px solid #ced4da; padding: 1rem; border-radius: 6px; }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h1>🏋️‍♂️ OneAbove Gym Admission Form</h1>
+        <div id="form-success-message" class="form-success" style="display: none;"></div>
+        <form id="gymAdmissionForm" name="gymForm" novalidate>
+            <div class="form-group"><label for="fullName">Full Name:</label><input type="text" id="fullName" name="fullName" required><span class="validation-message"></span></div>
+            <div class="form-group"><label for="email">Email:</label><input type="email" id="email" name="email" required><span class="validation-message"></span></div>
+            <div class="form-group"><label for="age">Age:</label><input type="number" id="age" name="age" required min="18" max="60"><span class="validation-message"></span></div>
+            <div class="form-group"><label>Gender:</label><div id="gender-group"><input type="radio" id="male" name="gender" value="male" required><label for="male">Male</label><input type="radio" id="female" name="gender" value="female" required><label for="female">Female</label></div><span class="validation-message"></span></div>
+            
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required>
+                <div id="password-strength-container">
+                    <div id="password-strength-bar"></div>
+                </div>
+                <span id="password-strength-text"></span>
+                <span class="validation-message" style="clear:both;"></span>
+            </div>
+            <div class="form-group"><label for="confirmPassword">Confirm Password:</label><input type="password" id="confirmPassword" name="confirmPassword" required><span class="validation-message"></span></div>
+
+            <div class="form-group">
+                <label for="membership">Membership Type:</label>
+                <select id="membership" name="membership" required>
+                    <option value="" disabled selected>-- Select a Plan --</option>
+                    <option value="monthly">Monthly Plan</option>
+                    <option value="quarterly">Quarterly Plan</option>
+                    <option value="yearly">Yearly Plan</option>
+                </select>
+                <span class="validation-message"></span>
+            </div>
+             <div class="form-group" id="addons-group">
+                <label>Optional Add-Ons:</label>
+                <div id="addons-container">
+                    <div><input type="checkbox" id="addon-trainer" name="addons" value="5000"><label for="addon-trainer">Personal Trainer (+ ₹5,000)</label></div>
+                    <div><input type="checkbox" id="addon-locker" name="addons" value="500"><label for="addon-locker">Locker Rental (+ ₹500)</label></div>
+                    <div><input type="checkbox" id="addon-sauna" name="addons" value="1000"><label for="addon-sauna">Sauna Access (+ ₹1,000)</label></div>
+                </div>
+            </div>
+            <div id="totalPriceDisplay" class="price-display"></div>
+
+            <div class="form-group"><label for="phone">Phone:</label><input type="text" id="phone" name="phone" required><span class="validation-message"></span></div>
+            <div class="form-group"><label for="dob">Date of Birth:</label><input type="date" id="dob" name="dob" required><span class="validation-message"></span></div>
+            <div class="form-group"><label for="profilePhoto">Profile Photo:</label><input type="file" id="profilePhoto" name="profilePhoto" accept=".jpg, .png" required><span class="validation-message"></span></div>
+           
+            <div class="form-group form-group-checkbox"><input type="checkbox" id="terms" name="terms" required><label for="terms">I agree to the Terms & Conditions</label><span class="validation-message"></span></div>
+            <div id="preview-box" class="preview-box" style="display:none;"><h3>Submission Preview</h3><p id="preview-details"></p></div>
+            <div class="form-buttons"><button type="submit" id="submitBtn" disabled>Submit</button><button type="reset">Reset</button></div>
+        </form>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const form = document.forms['gymForm'];
+        const elements = {}; 
+        ['fullName', 'email', 'age', 'gender-group', 'password', 'password-strength-bar', 'password-strength-text', 'confirmPassword', 'membership', 'totalPriceDisplay', 'phone', 'dob', 'profilePhoto', 'terms', 'submitBtn', 'form-success-message', 'preview-box'].forEach(id => {
+            elements[id.replace(/-/g, '')] = document.getElementById(id);
+        });
+
+        const validationStatus = {
+            fullName: false, email: false, age: false, gender: false, password: false,
+            confirmPassword: false, membership: false, phone: false, dob: false,
+            profilePhoto: false, terms: false
+        };
+
+        const pricing = {
+            monthly: 3000,
+            quarterly: 9000,
+            yearly: 30000
+        };
+
+        const showMessage = (el, message, isSuccess) => {
+            const container = el.closest('.form-group');
+            const messageEl = container.querySelector('.validation-message');
+            messageEl.textContent = message;
+            messageEl.className = `validation-message ${isSuccess ? 'success' : 'error'}`;
+            if (el.type !== 'radio' && el.type !== 'checkbox') {
+                 el.classList.toggle('valid', isSuccess);
+                 el.classList.toggle('invalid', !isSuccess);
+            }
+            el.setCustomValidity(isSuccess ? '' : message);
+        };
+
+        const updateTotalPrice = () => {
+            const planValue = elements.membership.value;
+            let total = planValue ? pricing[planValue] : 0;
+            document.querySelectorAll('input[name="addons"]:checked').forEach(addon => {
+                total += parseInt(addon.value);
+            });
+            elements.totalPriceDisplay.textContent = total > 0 ? `Total Amount: ₹${total.toLocaleString('en-IN')}` : '';
+            return total;
+        };
+
+        const validators = {
+            fullName: () => {
+                const { value } = elements.fullName;
+                const isValid = value.trim().length >= 3 && /^[a-zA-Z\s]+$/.test(value);
+                showMessage(elements.fullName, value.trim() === '' ? '❌ Full Name is required.' : isValid ? '✅ Looks good!' : '❌ Must be 3+ letters.', isValid);
+                return isValid;
+            },
+            email: () => {
+                const { value } = elements.email;
+                const isValid = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/.test(value);
+                showMessage(elements.email, value.trim() === '' ? '❌ Email is required.' : isValid ? '✅ Valid email format.' : '❌ Invalid email address.', isValid);
+                return isValid;
+            },
+            age: () => {
+                const { value } = elements.age;
+                const isValid = value >= 18 && value <= 60;
+                showMessage(elements.age, value === '' ? '❌ Age is required.' : isValid ? '✅ Age is valid.' : '❌ Age must be between 18 and 60.', isValid);
+                return isValid;
+            },
+            gender: () => {
+                const isValid = !!form.querySelector('input[name="gender"]:checked');
+                const messageEl = elements.gendergroup.nextElementSibling;
+                messageEl.textContent = isValid ? '' : '❌ Please select a gender.';
+                messageEl.className = `validation-message ${isValid ? 'success' : 'error'}`;
+                return isValid;
+            },
+            password: () => {
+                const { value } = elements.password;
+                const { passwordstrengthbar: bar, passwordstrengthtext: text } = elements;
+                let strength = { score: 0, text: '', className: '' };
+
+                if (value.length > 0 && value.length < 8) {
+                    strength = { score: 1, text: 'Weak', className: 'weak' };
+                } else if (value.length >= 8) {
+                    let score = 1;
+                    if (/[A-Z]/.test(value)) score++;
+                    if (/[0-9]/.test(value)) score++;
+                    if (/[^A-Za-z0-9]/.test(value)) score++;
+                    if (score < 3) strength = { score: 2, text: 'Medium', className: 'medium' };
+                    else strength = { score: 3, text: 'Strong', className: 'strong' };
+                }
+                
+                bar.className = `password-strength-bar ${strength.className}`;
+                text.textContent = strength.text;
+                text.className = `password-strength-text ${strength.className}`;
+                
+                const isValid = strength.score === 3;
+                showMessage(elements.password, value === '' ? '❌ Password is required.' : isValid ? '✅ Strong password.' : '❌ Password is not strong enough.', isValid);
+                validators.confirmPassword();
+                return isValid;
+            },
+            confirmPassword: () => {
+                const { value } = elements.confirmPassword;
+                const isValid = value === elements.password.value && value !== '';
+                showMessage(elements.confirmPassword, value === '' ? '❌ Please confirm password.' : isValid ? '✅ Passwords match.' : '❌ Passwords do not match.', isValid);
+                return isValid;
+            },
+            membership: () => {
+                const isValid = elements.membership.value !== '';
+                showMessage(elements.membership, isValid ? '✅ Plan selected.' : '❌ Please select a membership plan.', isValid);
+                updateTotalPrice();
+                return isValid;
+            },
+            phone: () => {
+                const { value } = elements.phone;
+                const isValid = /^\d{10}$/.test(value);
+                showMessage(elements.phone, value.trim() === '' ? '❌ Phone number is required.' : isValid ? '✅ Valid phone number.' : '❌ Must be exactly 10 digits.', isValid);
+                return isValid;
+            },
+            dob: () => {
+                const { value } = elements.dob;
+                const isValid = value && new Date(value) <= new Date();
+                showMessage(elements.dob, value === '' ? '❌ Date of Birth is required.' : isValid ? '✅ Valid date.' : '❌ Date cannot be in the future.', isValid);
+                return isValid;
+            },
+            profilePhoto: () => {
+                const file = elements.profilePhoto.files[0];
+                let isValid = false, msg = '❌ Profile photo is required.';
+                if (file) {
+                    const isTypeValid = ['image/jpeg', 'image/png'].includes(file.type);
+                    const isSizeValid = file.size <= 1 * 1024 * 1024;
+                    isValid = isTypeValid && isSizeValid;
+                    msg = !isTypeValid ? '❌ Only JPG/PNG allowed.' : !isSizeValid ? '❌ File size must be under 1MB.' : '✅ File is valid.';
+                }
+                showMessage(elements.profilePhoto, msg, isValid);
+                return isValid;
+            },
+            terms: () => {
+                const isValid = elements.terms.checked;
+                const messageEl = elements.terms.parentElement.querySelector('.validation-message');
+                messageEl.textContent = isValid ? '' : '❌ You must accept the terms.';
+                messageEl.className = `validation-message ${isValid ? 'success' : 'error'}`;
+                return isValid;
+            }
+        };
+
+        const checkFormValidity = () => {
+            const isFormValid = Object.values(validationStatus).every(status => status === true);
+            elements.submitBtn.disabled = !isFormValid;
+            
+            if (isFormValid) {
+                const { fullName, email, membership } = elements;
+                const total = updateTotalPrice();
+                let addonsText = Array.from(document.querySelectorAll('input[name="addons"]:checked')).map(el => el.nextElementSibling.textContent.split('(')[0].trim()).join(', ');
+                document.getElementById('preview-details').innerHTML = `
+                    <strong>Name:</strong> ${fullName.value}<br>
+                    <strong>Email:</strong> ${email.value}<br>
+                    <strong>Membership:</strong> ${membership.options[membership.selectedIndex].text}<br>
+                    ${addonsText ? `<strong>Add-Ons:</strong> ${addonsText}<br>` : ''}
+                    <strong>Total Amount:</strong> ₹${total.toLocaleString('en-IN')}
+                `;
+                elements.previewbox.style.display = 'block';
+            } else {
+                elements.previewbox.style.display = 'none';
+            }
+        };
+        
+        const addListener = (el, validator, event = 'input') => {
+            const targetElements = el.nodeName === 'INPUT' && el.type === 'radio' ? Array.from(form.elements[el.name]) : [el];
+            targetElements.forEach(elem => {
+                elem.addEventListener(event, () => {
+                    validationStatus[elem.name || elem.id] = validator();
+                    checkFormValidity();
+                });
+            });
+        };
+
+        addListener(elements.fullName, validators.fullName);
+        addListener(elements.email, validators.email);
+        addListener(elements.age, validators.age, 'input');
+        addListener(form.elements.gender[0], validators.gender, 'change');
+        addListener(elements.password, validators.password);
+        addListener(elements.confirmPassword, validators.confirmPassword);
+        addListener(elements.membership, validators.membership, 'change');
+        addListener(elements.phone, validators.phone);
+        addListener(elements.dob, validators.dob, 'change');
+        addListener(elements.profilePhoto, validators.profilePhoto, 'change');
+        addListener(elements.terms, validators.terms, 'change');
+        document.querySelectorAll('input[name="addons"]').forEach(addon => addon.addEventListener('change', updateTotalPrice));
+
+        form.addEventListener('reset', (e) => {
+            setTimeout(() => {
+                Object.keys(validationStatus).forEach(key => validationStatus[key] = false);
+                form.querySelectorAll('.validation-message').forEach(span => { span.textContent = ''; span.className = 'validation-message'; });
+                form.querySelectorAll('input, select').forEach(el => el.classList.remove('valid', 'invalid'));
+                elements.passwordstrengthbar.className = 'password-strength-bar';
+                elements.passwordstrengthtext.textContent = '';
+                elements.totalPriceDisplay.textContent = '';
+                elements.previewbox.style.display = 'none';
+                elements.submitBtn.disabled = true;
+            }, 0);
+        });
+
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            // The button is only enabled when isFormValid is true, so we can trust the state.
+            const isFormValid = Object.values(validationStatus).every(status => status === true);
+            
+            if (isFormValid) {
+                elements.formsuccessmessage.innerHTML = `✅ Form submitted successfully! Welcome, <strong>${elements.fullName.value}</strong>.`;
+                elements.formsuccessmessage.style.display = 'block';
+                form.style.display = 'none';
+                elements.previewbox.style.display = 'none';
+            } else {
+                // This is a fallback, in case the button is somehow clicked while invalid.
+                alert('Please fill out the form correctly before submitting.');
+            }
+        });
+    });
+    </script>
+</body>
+</html>
